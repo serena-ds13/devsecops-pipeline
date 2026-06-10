@@ -203,10 +203,10 @@ pipeline {
 
                                 echo '=== Lancement du scanner SonarQube ==='
                                 "${scannerHome}/bin/sonar-scanner" \
-                                    -Dsonar.projectKey=Demo-Pipeline  \
+                                    -Dsonar.projectKey=tst-christel \
                                     -Dsonar.sources=. \
-                                    -Dsonar.host.url=$SONAR_HOST_URL \
-                                    -Dsonar.token=sqp_e90d98f1a91d51dc4f60c42e00f97deb02ebd937 \
+                                    -Dsonar.host.url=https://sonarqube-tst.off.stib-mivb.net \
+                                    -Dsonar.token=sqp_2cb6262df7e46a6df0da507388249000a6a2bead \
                                     -Dsonar.sarifReportPaths="\$SARIFS"
                             """
                         
