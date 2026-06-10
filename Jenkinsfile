@@ -44,5 +44,29 @@ pipeline{
                 sh 'rm -rf reports'
             }
         }
+
+        stage('SonarQube') {
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                        withSonarQubeEnv('SonarQube') {
+                            withCredentials([
+                                string(credentialsId: 'example_sonar_token', variable:'EXAMPLE_SONAR_TOKEN')]){
+                                sh """
+                                    echo '=== Construction liste SARIF ==='
+                                    SARIFS=\$(ls $HOME/.jenkins-tools/reports/*.sarif 2>/dev/null | paste -sd, - || true)
+                                    echo "SARIFS = \$SARIFS"
+                                    echo '=== Lancement du scanner SonarQube ==='
+                                    "${scannerHome}/bin/sonar-scanner" \
+                                        -Dsonar.projectKey=tst-christel \
+                                        -Dsonar.sources=. \
+                                        -Dsonar.host.url=https://sonarqube-tst.off.stib-mivb.net \
+                                        -Dsonar.token=sqp_2cb6262df7e46a6df0da507388249000a6a2bead
+                                    """
+                                }
+                    }
+                }
+            }
+        }
    }
 }
