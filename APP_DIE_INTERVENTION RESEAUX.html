@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTERVENTION RÉSEAUX / NETINTERVENTIE - GUILMOT G. (STRICT)</title>
+    <style>
+        :root { --primary: #d32f2f; --dark: #263238; --light: #f5f5f5; --accent: #1565c0; --success: #2e7d32; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        .header { background: var(--dark); color: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--primary); }
+        .header h1 { margin: 0; font-size: 1.8rem; letter-spacing: 2px; }
+        .author-box { margin-top: 10px; display: inline-block; padding: 5px 15px; border: 1px solid #555; border-radius: 4px; font-size: 0.8rem; background: rgba(255,255,255,0.05); }
+        .author-name { color: #ffeb3b; font-weight: bold; text-transform: uppercase; }
+        
+        .main-content { flex: 1; padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        
+        /* Search Section */
+        .search-section { background: white; padding: 15px 15px 25px 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .input-wrapper { position: relative; width: 100%; max-width: 600px; }
+        #streetInput, #networkInput { width: 100%; padding: 12px 40px 12px 20px; font-size: 1.2rem; border: 2px solid #ccc; border-radius: 50px; outline: none; text-align: center; font-weight: bold; box-sizing: border-box;}
+        #streetInput:focus, #networkInput:focus { border-color: var(--accent); }
+        .clear-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #999; display: none; font-size: 1.2rem; }
+        
+        /* Divider pour séparer les recherches */
+        .search-divider { width: 100%; text-align: center; border-bottom: 2px solid #eee; line-height: 0.1em; margin: 30px 0 25px 0; max-width: 600px; }
+        .search-divider span { background: white; padding: 0 15px; color: #aaa; font-weight: 900; font-size: 0.85rem; letter-spacing: 1px; }
+
+        /* Grid View */
+        .choice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .choice-card { background: white; padding: 15px; border-radius: 8px; cursor: pointer; border-left: 6px solid var(--accent); box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; position: relative;}
+        .choice-card:hover { transform: translateY(-3px); background: #e3f2fd; }
+        .choice-name { font-size: 1.1rem; font-weight: 800; color: var(--dark); }
+        .choice-sub { font-size: 0.8rem; color: #777; margin-top: 5px; display: flex; justify-content: space-between; }
+
+        /* Detail View */
+        .detail-view { display: none; }
+        .top-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .back-btn { background: #546e7a; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .back-btn:hover { background: #455a64; }
+        
+        .num-filter { display: flex; align-items: center; gap: 10px; background: #f5f5f5; padding: 5px 15px; border-radius: 50px; border: 1px solid #ddd; }
+        .num-label { font-weight: bold; color: var(--dark); font-size: 0.9rem; }
+        #numInput { width: 80px; padding: 8px; font-size: 1.2rem; text-align: center; border: 2px solid transparent; background: transparent; font-weight: 900; color: var(--primary); outline: none; }
+        #numInput:focus { border-bottom: 2px solid var(--primary); }
+        
+        .split-layout { display: flex; gap: 20px; align-items: flex-start; }
+        .addr-block { flex: 1; background: white; padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-left: 10px solid var(--dark); position: sticky; top: 220px; }
+        .addr-title { font-size: 1.8rem; font-weight: 900; color: var(--dark); line-height: 1.2; }
+        .addr-code { margin-top: 10px; font-family: monospace; background: #eceff1; padding: 4px 10px; border-radius: 4px; display: inline-block; color: #455a64; font-weight: bold; }
+        .addr-lieu { display: none; }
+        
+        .networks-block { flex: 2; display: flex; flex-direction: column; gap: 15px; width: 100%; }
+        .network-card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 15px solid #ccc; display: flex; flex-direction: column; transition: all 0.3s ease; }
+        
+        .network-card.match { border-left-color: var(--success); background-color: #f1f8e9; border: 2px solid var(--success); border-left-width: 15px; }
+        
+        .net-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .net-name { font-size: 2rem; font-weight: 900; color: var(--dark); text-transform: uppercase; line-height: 1; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; color: white; display: none; }
+        .match .status-badge { display: inline-block; background: var(--success); }
+
+        .feeder-line { display: flex; align-items: center; gap: 10px; background: #eceff1; padding: 8px 15px; border-radius: 4px; width: fit-content; margin-bottom: 10px;}
+        .feeder-label { font-size: 0.8rem; font-weight: bold; color: #607d8b; text-transform: uppercase; }
+        .feeder-val { font-size: 1.2rem; font-weight: bold; color: var(--dark); }
+        
+        .range-info { font-size: 0.85rem; color: #555; background: #fff; border: 1px solid #eee; padding: 8px; border-radius: 4px; margin-top: 5px;}
+        .range-row { display: flex; justify-content: space-between; padding: 2px 0; }
+        .range-row span:first-child { font-weight: bold; color: #777; }
+        
+        .empty-alert { background: #fff3e0; border: 2px dashed #ffb74d; padding: 20px; text-align: center; border-radius: 8px; color: #e65100; font-weight: bold; display:none; }
+
+        /* Style du bouton PDF */
+        .pdf-link { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px; font-size: 0.85rem; font-weight: bold; transition: background 0.2s; width: fit-content; margin-top: 10px;}
+        .pdf-link:hover { background: #0d47a1; }
+
+        @media (max-width: 800px) { 
+            .split-layout { flex-direction: column; } 
+            .addr-block { width: 100%; position: static; margin-bottom: 20px; box-sizing: border-box; } 
+            .network-card { width: 100%; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>INTERVENTION RÉSEAUX / NETINTERVENTIE</h1>
+    <div class="author-box">Réalisé par : <span class="author-name">GUILMOT Gaëtan</span></div>
+</div>
+
+<div class="main-content">
+    <div id="view1">
+        <div class="search-section">
+            <div class="input-wrapper">
+                <input type="text" id="streetInput" placeholder="🔎 Tapez le nom de la rue..." onkeyup="searchStreets()" autofocus>
+                <span class="clear-icon" id="clearSearch" onclick="clearSearch()">✖</span>
+            </div>
+            
+            <div class="search-divider"><span>OU RECHERCHE DIRECTE</span></div>
+            
+            <div class="input-wrapper">
+                <input type="text" id="networkInput" placeholder="📡 Tapez le nom du réseau..." onkeyup="searchNetworks()">
+                <span class="clear-icon" id="clearNetworkSearch" onclick="clearNetworkSearch()">✖</span>
+            </div>
+        </div>
+        <div id="grid" class="choice-grid"></div>
+    </div>
+
+    <div id="view2" class="detail-view">
+        <div class="top-bar">
+            <button class="back-btn" onclick="goBack()"><span>⬅</span> Retour Recherche</button>
+            <div class="num-filter">
+                <span class="num-label">N° MAISON :</span>
+                <input type="number" id="numInput" placeholder="..." oninput="filterNetworks()">
+                <span style="cursor:pointer; color:#999; font-size:0.8rem;" onclick="clearNum()">✖</span>
+            </div>
+        </div>
+        <div class="split-layout">
+            <div class="addr-block">
+                <div id="dStreet" class="addr-title"></div>
+                <div id="dCode" class="addr-code"></div>
+                <div id="dLieu" class="addr-lieu"></div>
+            </div>
+            <div id="netList" class="networks-block"></div>
+            <div id="noResult" class="empty-alert">
+                ⚠️ Aucun réseau ne couvre le N° <span id="alertNum"></span>.<br>
+                <small>Vérifiez si le numéro est Pair/Impair et s'il est dans les plages.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="footer" style="text-align:center; padding:20px; color:#aaa; font-size:0.8rem; border-top:1px solid #eee;">
+    © 2026 - Sécurité Incendie - Version Strict
+</div>
+
+<script>
+// DATA SOURCE
+const rawData = [
+["S1A1", "Renard(Av M)", "RENARD", "7402", "7403", "4 à 70", "5 à 69"],
+["S1A1", "Renard(Av M)", "ROI SOLDAT", "1401", "7401", "2 à 4", ""],
+["S1A1.1", "Terminus RENARD", "RENARD", "7402", "7403", "", ""],
+["S1A2", "Roi soldat (Av)", "ROI SOLDAT", "1401", "7401", "8 à 118 ", "71 à 103"],
+["S1A2", "Roi soldat (Av)", "VEEWEYDE", "1403", "1404", "2 à 8", ""],
+["S1A3", "Meir (RP du)", "VEEWEYDE", "1403", "1404", "1 à 13", "2 à 14"],
+["S1A4", "Janson (Av Paul)", "VEEWEYDE", "1403", "1404", "4 à 100", "3 à 95"],
+["S1A4", "Janson (Av Paul)", "WAYEZ", "1402", "5503", "2 à 4", ""],
+["S1A4.1", "Procession (Rue de la)", "VEEWEYDE", "1403", "1404", "", ""],
+["S1A5", "Wayez (rue)", "WAYEZ", "1402", "5503", "2 à 212", "1 à 189"],
+["S1A6", "Vandervelde (Square Emile)", "WAYEZ", "1402", "5503", "", ""],
+["S1A6", "Vandervelde (Square Emile)", "DE FIENNES", "5502", "14706", "", ""],
+["S1A6.1", "Résistance (Pl de la)", "WAYEZ", "1402", "5503", "", ""],
+["S1A6.2", "Déportés Anderlechtois (Rue des)", "WAYEZ", "1402", "5503", "", ""],
+["S1A6.3", "Formanoir (Rue du)", "WAYEZ", "1402", "5503", "", ""],
+["S1A6.4", "Veeweyde (Rue de)", "WAYEZ", "1402", "5503", "", ""],
+["S1A6.5", "Vaillance (Pl de la)", "WAYEZ", "1402", "5503", "", ""],
+["S1B1", "Mons (Chée de)", "DE FIENNES", "5502", "14706", "332 à 382", "383 à 451"],
+["S1B2", "Albert 1er (square)", "DE FIENNES", "5502", "14706", "2 à 34", "1 à 34"],
+["S1B3", "Van Lint (rue)", "DE FIENNES", "5502", "14706", "2 à 64", "1 à 87"],
+["S1B4", "De fiennes (rue)", "PL BARA", "14702", "14708", "2 à 4", "1 à 9"],
+["S1B4", "De fiennes (rue)", "DE FIENNES", "5502", "14706", "4 à 86", "9 à 95"],
+["S1B5", "Conseil (Pl du)", "DE FIENNES", "5502", "14706", "2 à 8", "1 à 9"],
+["S1B5.1", "Wyns (Rue Chomé )", "DE FIENNES", "5502", "14706", "", ""],
+["S1B5.2", "De Bruyne (Rue Sergent )", "DE FIENNES", "5502", "14706", "", ""],
+["S1B5.3", "Instruction (Rue de l )", "DE FIENNES", "5502", "14706", "", ""],
+["S1B5.4", "Raphael (Rue)", "DE FIENNES", "5502", "14706", "", ""],
+["S1B6", "Bara (pl)", "PL BARA", "14702", "14708", "2 à 30", "1 à 31"],
+["S1B7", "Argonne (Rue de l )", "PL BARA", "14702", "14708", "2 à 18", ""],
+["S1B8", "Jamar (Bld)", "COUVERTE", "14704", "14711", "", "45 à 53"],
+["S1B8", "Jamar (Bld)", "PL BARA", "14702", "14708", "", "45"],
+["S1B8.1", "Clémenceau (Av)", "PL BARA", "14702", "14708", "", ""],
+["S1B8.2", "Trémie JAMAR (Rampe)", "COUVERTE", "14704", "14711", "", ""],
+["S1B8.3", "PREMETRO CONSTITUTION", "COUVERTE", "14704", "14711", "", ""],
+["S1B8.3", "PREMETRO CONSTITUTION", "STALINGRAD", "14701", "14712", "", ""],
+["S1B9", "Couverte (Rue)", "COUVERTE", "14704", "14711", "", ""],
+["S1B9", "Couverte (Rue)", "TANNEURS", "1603", "14707", "", ""],
+["S1C1", "Fonsny (Av)", "ANGLETERRE", "1606", "14710", "30 à 106", "29 à 107"],
+["S1C1", "Fonsny (Av)", "TANNEURS", "1603", "14707", "2 à 30", "1 à 29"],
+["S1C1", "Fonsny (Av)", "AV FONSNY", "1605", "5301", "106 à 130", "107 à 131"],
+["S1C1.1", "Trémie COUVERTE (Rampe)", "COUVERTE", "14704", "14711", "", ""],
+["S1C2", "Roi (Av du)", "ANGLETERRE", "1606", "14710", "2 à 12", "1 à 9"],
+["S1C2", "Roi (Av du)", "DPT AV DU ROI", "1602", "1607", "12 à 34", "9 à 17"],
+["S1C3", "DPT AV DU ROI", "ANGLETERRE", "1606", "14710", "", ""],
+["S1C3", "DPT AV DU ROI", "DPT AV DU ROI INT", "1607", "", "", ""],
+["S1C3", "DPT AV DU ROI", "DPT AV DU ROI EXT", "1602", "", "", ""],
+["S1C3.1", "Belgrade (Rue de)", "DPT AV DU ROI EXT", "1602", "", "", ""],
+["S1C4", "Wielemans (Pl Léon)", "AV FONSNY", "1605", "5301", "2 à 10", "1 à 11"],
+["S1C5", "Van Volxem (Av)", "VAN VOLXEM", "5303", "5404", "2 à 344", "1 à 339"],
+["S1C5", "Van Volxem (Av)", "AV FONSNY", "1605", "5301", "354 à 432", "357 à 531"],
+["S1C5.1", "Zaman (Av)", "VAN VOLXEM", "5303", "5404", "", ""],
+["S1C5.2", "Deuxième Armée Britanique (Bld de la)", "VAN VOLXEM", "5303", "5404", "", ""],
+["S1C5.3", "Delta (Rue du)", "VAN VOLXEM", "5303", "5404", "", ""],
+["S1C5.4", "Uccle (Av d )", "VAN VOLXEM", "5303", "5404", "", ""],
+["S1C5.5", "Van Haelen (Bld Guillaume)", "VAN VOLXEM", "5303", "5404", "", ""],
+["S1C6", "Bruxelles (Ch de)", "ST DENIS", "5401", "5403", "2 à 78", "1 à 59"],
+["S1C6", "Bruxelles (Ch de)", "VAN VOLXEM", "5303", "5404", "78 à 150", "105 à 165"],
+["S1C6.1", "Saint-Denis (Rue)", "ST DENIS", "5401", "5403", "", ""],
+["S1D1", "Neerstalle (Ch de)", "ST DENIS", "5401", "5403", "2 à 24", "1 à 29"],
+["S1D1", "Neerstalle (Ch de)", "NEERSTALLE", "5402", "18203", "24 à 440", "29 à 491"],
+["S1D1", "Neerstalle (Ch de)", "POLDERS", "18201", "18206", "442 à 458", "491 à 505"],
+["S1D1.1", "Van Pé (Rue Jean Baptiste)", "ST DENIS", "5401", "5403", "", ""],
+["S1D1.2", "Saint-Denis (Pl)", "ST DENIS", "5401", "5403", "", ""],
+["S1D1.3", "Pieter (Rue)", "ST DENIS", "5401", "5403", "", ""],
+["S1D1.4", "Waller (Rue Max )", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.5", "Baillon (Rue André )", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.6", "Bempt (Av du)", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.7", "Treisignies (Av Caporal )", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.8", "Dumonceau (Av Général)", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.9", "Eau (Rue del )", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.10", "Katanga (Rue du)", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.11", "Lumière (Rue Auguste )", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.12", "Madelon (square de la)", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.13", "Van Hamme (Rue Baron Guillaume )", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.14", "Zwartebeek (Rue)", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D1.15", "Parc du Bempt", "NEERSTALLE", "5402", "18203", "", ""],
+["S1D2", "Ruisbroek (Ch de)", "NEERSTALLE", "5402", "18203", "", "387"],
+["S1D2", "Ruisbroek (Ch de)", "DPT MARCONI", "22405", "22407", "", ""],
+["S1D2", "Ruisbroek (Ch de)", "RUISBROEK", "18209", "22404", "", "1 à 387"],
+["S1D3", "DPT MARCONI", "ZWARTEBEEK", "18208", "22408", "", ""],
+["S1D3", "DPT MARCONI", "RUISBROEK", "18209", "22404", "", ""],
+["S1D3", "DPT MARCONI", "DPT MARCONI CONTOUR", "22405", "22407", "", ""],
+["S1D3", "DPT MARCONI", "DPT MARCONI HALL 1", "22401", "", "", ""],
+["S1D3", "DPT MARCONI", "DPT MARCONI HALL 2", "22402", "", "", ""],
+["S1D3", "DPT MARCONI", "DPT MARCONI ENTRETIEN", "22406", "", "", ""],
+["S1E1", "Etoile (Rue de l )", "POLDERS", "18201", "18206", "2 à 32", "9 à 29"],
+["S1E1", "Etoile (Rue de l )", "ETOILE", "18202", "18207", "32 à 110", "29 à 117"],
+["S1E2", "Stalle (Rue de)", "POLDERS", "18201", "18206", "264 à 288", "169 à 189"],
+["S1E2", "Stalle (Rue de)", "STALLE PROL.", "18210", "22409", "", ""],
+["S1E2", "Stalle (Rue de)", "STALLE", "18204", "22301", "24 à 264", "15 à 169"],
+["S1E2", "Stalle (Rue de)", "DANCO", "22303", "22306", "2 à 14", "1 à 15"],
+["S1E2.1", "Parking STALLE (Entrée)", "STALLE PROL.", "18210", "22409", "", ""],
+["S1E2.2", "Van Ophem (Rue Egide)", "STALLE", "18204", "22301", "", ""],
+["S1E3", "Grand Route (Rue)", "ETOILE", "18202", "18207", "200 à 294", "201 à 295"],
+["S1E3.1", "Terminus ETOILE", "ETOILE", "18202", "18207", "", ""],
+["S1E4", "Rodts (Rue Jqseph)", "ETOILE", "18202", "18207", "2 à 22", "1 à 21"],
+["S1E5", "Eglise (Rue de l )", "ETOILE", "18202", "18207", "4 à 86", "3 à 101"],
+["S1E5.1", "Trois Rois (Rue des)", "ETOILE", "18202", "18207", "", ""],
+["S1E5.2", "Vieux Moulin (Rue du)", "ETOILE", "18202", "18207", "", ""],
+["S2A1", "Albert (Av)", "SAVOIE", "9001", "9002", "56 à 98", "81 à 127"],
+["S2A1", "Albert (Av)", "AV ALBERT", "10601", "10609", "98 à 236", "127 à 257"],
+["S2A1", "Albert (Av)", "VANDEKINDEREN", "10605", "10612", "236 à 276", "257 à 293"],
+["S2A1.1", "Trémie ALBERT", "SAVOIE", "9001", "9002", "", ""],
+["S2A1.2", "Trémie JUPITER", "SAVOIE", "9001", "9002", "", ""],
+["S2A1.3", "PREMETRO N/S PROL.", "RUSSIE", "8904", "14709", "", ""],
+["S2A1.3", "PREMETRO N/S PROL.", "ROME", "8901", "9004", "", ""],
+["S2A1.3", "PREMETRO N/S PROL.", "SAVOIE", "9001", "9002", "", ""],
+["S2A2", "Brugmann (Av )", "DANCO", "22303", "22306", "496 à 548", "547 à 621"],
+["S2A2", "Brugmann (Av )", "MESSIDOR", "10604", "22308", "294 à 494", "289 à 545"],
+["S2A2", "Brugmann (Av )", "VANDEKINDEREN", "10605", "10612", "242à 292", "249 à 289"],
+["S2A2", "Brugmann (Av )", "AV BRUGMAN", "9007", "10602", "2 à 240", "1 à 247"],
+["S2A2.1", "Ma campagne", "AV BRUGMAN", "9007", "10602", "", ""],
+["S2A3", "Vanderkindere (Pl Leon)", "VANDEKINDEREN", "10605", "10612", "", "1 à 7"],
+["S2A3.1", "Vanderkindere (Rue)", "VANDEKINDEREN", "10605", "10612", "", ""],
+["S2A3.1", "Vanderkindere (Rue)", "JOFFRE", "10606", "22302", "", ""],
+["S2A3.2", "Floréal (Av de)", "MESSIDOR", "10604", "22308", "", ""],
+["S2A3.3", "Fré (Av de)", "MESSIDOR", "10604", "22308", "", ""],
+["S2A3.4", "Messidor (Av de)", "MESSIDOR", "10604", "22308", "", ""],
+["S2A3.4", "Messidor (Av de)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2A3.5", "Cottages (Rue des)", "MESSIDOR", "10604", "22308", "", ""],
+["S2A3.5", "Cottages (Rue des)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2A3.6", "Doyenne (Rue du)", "MESSIDOR", "10604", "22308", "", ""],
+["S2A3.6", "Doyenne (Rue du)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2A4", "Marlow (Square)", "DANCO", "22303", "22306", "", ""],
+["S2A4", "Marlow (Square)", "DIEWEG", "22304", "22307", "", ""],
+["S2A4", "Marlow (Square)", "MESSIDOR", "10604", "22308", "", ""],
+["S2A4.1", "Danco (Pl Emile)", "DANCO", "22303", "22306", "", ""],
+["S2B1", "Wolvendael (Av)", "DIEWEG", "22304", "22307", "2 à 156", "1 à 157"],
+["S2B2", "Carsoel (Av Jean Pierre)", "DIEWEG", "22304", "22307", "198 à 202", "139 à 143"],
+["S2B2", "Carsoel (Av Jean Pierre)", "OBSERVATOIRE", "18703", "18704", "24 à 176", "19 à 135"],
+["S2B2", "Carsoel (Av Jean Pierre)", "ST JOB", "18701", "18702", "2 à 16", "1 à 17"],
+["S2B2.1", "Dieweg", "DIEWEG", "22304", "22307", "", ""],
+["S2B2.2", "Klipveld", "DIEWEG", "22304", "22307", "", ""],
+["S2B2.3", "Raindorf (square)", "DIEWEG", "22304", "22307", "", ""],
+["S2B2.4", "Repos (Rue du)", "DIEWEG", "22304", "22307", "", ""],
+["S2B2.5", "Lecointe (Av Georges)", "OBSERVATOIRE", "18703", "18704", "", ""],
+["S2B2.6", "Thevenet (Av Louis)", "OBSERVATOIRE", "18703", "18704", "", ""],
+["S2B2.7", "Mercure (Av de)", "OBSERVATOIRE", "18703", "18704", "", ""],
+["S2B2.8", "Lancaster (Av Albert)", "OBSERVATOIRE", "18703", "18704", "", ""],
+["S2B3", "Saint-Job (Pl )", "ST JOB", "18701", "18702", "12 à 40", "1 à 21"],
+["S2B4", "Ham (Rue du)", "ST JOB", "18701", "18702", "2 à 134", "1 à 177"],
+["S2B5", "Carloo (Drève de)", "ST JOB", "18701", "18702", "2 à 18", "1 à 29"],
+["S2B6", "Fond'Roy (Av)", "ST JOB", "18701", "18702", "2 à 30", "1 à 29"],
+["S2B7", "Moulin (Vieille rue du)", "ST JOB", "18701", "18702", "292 à 360", "285 à 311"],
+["S2B8", "Fort Jaco (Terminus)", "ST JOB", "18701", "18702", "", ""],
+["S2C1", "Jupiter (Av)", "JOFFRE", "9009", "10611", "174 à 216", "129 à 201"],
+["S2C2", "Bertrand (Av Alexandre)", "JOFFRE", "9009", "10611", "2 à 58", "1 à 65"],
+["S2C3", "Altitude Cent (Pl de l )", "JOFFRE", "9009", "10611", "2 à 34", "1 à 35"],
+["S2C4", "Van Goidtsnoven (Av Oscar)", "JOFFRE", "9009", "10611", "2 à 106", "1 à 105"],
+["S2C5", "Besme (Av)", "JOFFRE", "9009", "10611", "", "63 à 127"],
+["S2C6", "Alsemberg (Ch d )", "JOFFRE", "9009", "10611", "408", "413 à 419"],
+["S2C6", "Alsemberg (Ch d )", "7 BONNIERS", "10606", "22302", "408 à 754", "419 à 849"],
+["S2C6", "Alsemberg (Ch d )", "DANCO", "22303", "22306", "754 à 770", "849 à 877"],
+["S2C6", "Alsemberg (Ch d )", "BERNAERTS", "7601", "22305", "770 à 1402", "877 à 1439"],
+["S2C6", "Alsemberg (Ch d )", "TH VERHAEGEN", "1601", "9005", "2 à 4", "1 à 3"],
+["S2C6.1", "Cervantes (Av des)", "JOFFRE", "9009", "10611", "", ""],
+["S2C6.2", "Coghen (Av)", "JOFFRE", "9009", "10611", "", ""],
+["S2C6.3", "Joffre (Av Maréchal)", "JOFFRE", "9009", "10611", "", ""],
+["S2C6.4", "Sept Bonniers (Av des)", "JOFFRE", "9009", "10611", "", ""],
+["S2C6.4", "Sept Bonniers (Av des)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2C6.5", "Allard (Rue Victor)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2C6.6", "Asselbergs (Rue Alphonse)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2C6.7", "Bens (Rue Joseph)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2C6.8", "De Bue (Rue Xavier)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2C6.9", "Nieuwenhove (Rue de)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2C6.10", "Regard (Rue Emile)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2C6.11", "Roosendael (Rue)", "7 BONNIERS", "10606", "22302", "", ""],
+["S2C7", "Engeland (Rue )", "BERNAERTS", "7601", "22305", "38 à 42", ""],
+["S2C8", "Château d Or (Rue du )", "BERNAERTS", "7601", "22305", "2 à 14", "1 à 13"],
+["S2C8.1", "Drogenbos (Ch de )", "BERNAERTS", "7601", "22305", "", ""],
+["S2C8.2", "Poussins (Rue des)", "BERNAERTS", "7601", "22305", "", ""],
+["S2C8.3", "Calevoet (Rue de)", "BERNAERTS", "7601", "22305", "", ""],
+["S2C8.4", "Silence (Av du )", "BERNAERTS", "7601", "22305", "", ""],
+["S2D1", "Charleroi (Chée)", "AV BRUGMAN", "9007", "10602", "190 à 258", "231 à 283"],
+["S2D1", "Charleroi (Chée)", "BAILLI", "209", "9006", "152 à 190", "187 à 231"],
+["S2D1", "Charleroi (Chée)", "CH DE CHARLEROI", "5201", "9008", "2 à 152", "1 à 187"],
+["S2D1.1", "Saint-Bernard (Rue )", "CH DE CHARLEROI", "5201", "9008", "", ""],
+["S2D1.2", "Neufchatel (Rue de)", "CH DE CHARLEROI", "5201", "9008", "", ""],
+["S2D1.3", "Victoire (Rue de la)", "CH DE CHARLEROI", "5201", "9008", "", ""],
+["S2D2", "Demeur (Av Adolphe )", "BAILLI", "209", "9006", "20 à 22", "33 à 41"],
+["S2D3", "Van Meenen (Pl)", "BAILLI", "209", "9006", "2 à 8", "1 à 39"],
+["S2D4", "Lombardie (Rue de )", "BAILLI", "209", "9006", "2 à 28", "1 à 29"],
+["S2D5", "Bréart (Rue Antoine )", "BAILLI", "209", "9006", "2 à 46", "1 à 47"],
+["S2D6", "Moris (Rue)", "BAILLI", "209", "9006", "2 à 76", "1 à 53"],
+["S2D7", "Janson (Pl Paul )", "BAILLI", "209", "9006", "", ""],
+["S2D8", "Aqueduc (Rue de l )", "BAILLI", "209", "9006", "2 à 58", "1 à 71"],
+["S2D9", "Africaine (Rue)", "BAILLI", "209", "9006", "88 à 110", "89 à 109"],
+["S2D10", "Tabellion (Rue du )", "BAILLI", "209", "9006", "2 à 20", "1 à 3"],
+["S2D11", "Trinité (Parvis de la)", "BAILLI", "209", "9006", "2 à 12", "1 à 11"],
+["S2D12", "Bailli (Rue du )", "BAILLI", "209", "9006", "16 à 106", "17 à 97"],
+["S2D12", "Bailli (Rue du )", "BONTE", "207", "5203", "2 à 16", "1 à 17"],
+["S2D12.1", "Defacqz (Rue )", "BAILLI", "209", "9006", "", ""],
+["S2D12.2", "Livourne  (Rue de)", "BAILLI", "209", "9006", "", ""],
+["S2D12.3", "Savoie (Rue de )", "BAILLI", "209", "9006", "", ""],
+["S2D13", "Verhaegen (Rue Théodor)", "TH VERHAEGEN", "1601", "9005", "2 à 230", "1 à 215"],
+["S2D13", "Verhaegen (Rue Théodor)", "ANGLETERRE", "1606", "14710", "230", "215 à 225"],
+["S2D14", "DeJaer (Av Paul)", "TH VERHAEGEN", "1601", "9005", "2 à 26", "1 à 29"],
+["S2D14", "DeJaer (Av Paul)", "BAILLI", "209", "9006", "26 à 30", "29 à 39"],
+["S2D14.1", "Bethléem (Pl )", "TH VERHAEGEN", "1601", "9005", "", ""],
+["S2D14.2", "Prague (Rue de)", "TH VERHAEGEN", "1601", "9005", "", ""],
+["S2D14.3", "Hôtel ds Monnaies (Rue de l )", "TH VERHAEGEN", "1601", "9005", "", ""],
+["S2D15", "Parc (Av du)", "TH VERHAEGEN", "1601", "9005", "2 à 18", "1 à 5"],
+["S2D15", "Parc (Av du)", "AV DU PARC", "5302", "", "18 à 164", "7 à 159"],
+["S2D16", "Wielemans (Av Ceuppens)", "AV DU PARC", "5302", "", "2 à 194", "1 à 189"],
+["S2D17", "Rochefort (Pl de)", "AV DU PARC", "5302", "", "2 à 10", "1 à 11"],
+["S2D18", "Saint-Gilles (Barrière de)", "TH VERHAEGEN", "1601", "9005", "", ""],
+["S2D18.1", "Bosnie (Rue de)", "AV DU PARC", "5302", "", "", ""],
+["S2D18.2", "Forest (Chée de)", "AV DU PARC", "5302", "", "", ""],
+["S2D18.3", "Clémentine (Av)", "AV DU PARC", "5302", "", "", ""],
+["S2D18.4", "Cluysenaar (Rue Alfred)", "AV DU PARC", "5302", "", "", ""],
+["S2D18.5", "Combaz (Rue Gisbert)", "AV DU PARC", "5302", "", "", ""],
+["S2D18.6", "Monnaies (Rue Hôtel des)", "AV DU PARC", "5302", "", "", ""],
+["S2D18.7", "Fort (Rue du)", "AV DU PARC", "5302", "", "", ""],
+["S3A1", "Churchill (Av Winston +Rond-Point)", "MARIANNE", "2303", "10603", "20 à 160", "11 à 135"],
+["S3A1", "Churchill (Av Winston +Rond-Point)", "GABRIELLE", "2301", "2304", "160 à 254", "137 à 255"],
+["S3A1", "Churchill (Av Winston +Rond-Point)", "LEGRAND", "203", "2302", "254", "255"],
+["S3A1", "Churchill (Av Winston +Rond-Point)", "VANDEKINDEREN", "10605", "10612", "2 à 20", "1 à 11"],
+["S3A2", "Waterloo (Ch de)", "LEGRAND", "203", "2302", "762", "719 à 787"],
+["S3A2", "Waterloo (Ch de)", "AV BRUGMAN", "9007", "10602", "404 à 408", "361 à 363"],
+["S3A2", "Waterloo (Ch de)", "TH VERHAEGEN", "1601", "9005", "198 à 202", "165 à 167"],
+["S3A2", "Waterloo (Ch de)", "BAILLI", "209", "9006", "338 à 340", "291 à 293"],
+["S3A3", "Legrand (Av)", "LEGRAND", "203", "2302", "16 à 96", "19 à 75"],
+["S3A3", "Legrand (Av)", "CAMBRE", "201", "211", "2 à 16", "1 à 19"],
+["S3A3.1", "Bel-Air (Av)", "LEGRAND", "203", "2302", "", ""],
+["S3A4", "Louise (Av )", "FLAGEY", "206", "208", "194 à 196", "195"],
+["S3A4", "Louise (Av )", "LOUISE", "210", "221", "202 à 518", "203 à 519"],
+["S3A4", "Louise (Av )", "BONTE", "207", "5203", "60 à 202", "59 à 203"],
+["S3A4", "Louise (Av )", "LAINES", "5202", "", "2 à 52", "1 à 53"],
+["S3A5", "Cambre (Bld de la )", "CAMBRE", "201", "211", "2 à 74", "1 à 57"],
+["S3A6", "Duray (Av Emile )", "CAMBRE", "201", "211", "68", ""],
+["S3A7", "Etoile (Rond-Point de l )", "CAMBRE", "201", "211", "", ""],
+["S3A7.1", "Courses (Av des)", "CAMBRE", "201", "211", "", ""],
+["S3A7.2", "Lauters (Av Paul )", "LOUISE", "210", "221", "", ""],
+["S3A8", "Stéphanie (Pl)", "BONTE", "207", "5203", "4 à 6", ""],
+["S3A8", "Stéphanie (Pl)", "LAINES", "5202", "", "2 à 4", ""],
+["S3A8.1", "Toison d Or (Av de la )", "BONTE", "207", "5203", "", ""],
+["S3A8.2", "Waterloo (Bld de )", "BONTE", "207", "5203", "", ""],
+["S3A9", "Quatre-Bras (Rue des)", "LAINES", "5202", "", "2 à 6", "13 à 19"],
+["S3A10", "Louise (Pl)", "LAINES", "5202", "", "", ""],
+["S3B1", "Lesbroussart (Rue)", "FLAGEY", "206", "208", "2 à 128", "1 à 123"],
+["S3B2", "Flagey (Pl)", "FLAGEY", "206", "208", "14 à 20", "13 à 19"],
+["S3B3", "Sainte-Croix (Pl)", "FLAGEY", "206", "208", "", ""],
+["S3B3", "Sainte-Croix (Pl)", "BERNIER", "212", "222", "", ""],
+["S3B4", "Eperons d Or (Av des)", "BERNIER", "212", "222", "2 à 16", "1 à 15"],
+["S3B4.1", "Dautzenberg (Rue)", "FLAGEY", "206", "208", "", ""],
+["S3B4.2", "Decoster (Rue Charles)", "FLAGEY", "206", "208", "", ""],
+["S3B4.3", "Hennin (Rue de)", "FLAGEY", "206", "208", "", ""],
+["S3B4.4", "Ixelles (Ch d )", "FLAGEY", "206", "208", "", ""],
+["S3B4.5", "Spaak (Rue Paul)", "FLAGEY", "206", "208", "", ""],
+["S3B4.6", "Vleurgat (Ch de)", "FLAGEY", "206", "208", "", ""],
+["S3B5", "Brasserie (Rue de la),", "CELTES", "204", "8102", "2 à 162", "1 à 119"],
+["S3B5", "Brasserie (Rue de la)", "FLAGEY", "206", "208", "162", "121 à 123"],
+["S3B6", "Couronne (Av de la )", "CELTES", "204", "8102", "104 à 108", "67 à 71"],
+["S3B7", "Germoir (Rue du)(Pont)", "CELTES", "204", "8102", "2 à 6", "1 à 9"],
+["S3B8", "Baucq (Rue Philippe )", "CELTES", "204", "8102", "140 à 150", "163 à 183"],
+["S3B9", "Jacobs (Av Victor )", "CELTES", "204", "8102", "2 à  92", "1 à 85"],
+["S3B10", "Saint-Antoine (Pl)", "CELTES", "204", "8102", "30 à 46", "31 à 45"],
+["S3B10.1", "Eglise St-Antoire", "CELTES", "204", "8102", "", ""],
+["S3B11", "Pirmez (Av Eudore)", "CELTES", "204", "8102", "2 à 68", "1 à 53"],
+["S3B12", "Chasse (Carrefour de la)", "CELTES", "204", "8102", "", ""],
+["S3B13", "Chasse (Av de la )", "CELTES", "204", "8102", "2 à 212", "1 à 239"],
+["S3B14", "Saint-Pierre (Pl )", "CELTES", "204", "8102", "2 à 44", "1 à 45"],
+["S3B15", "Celtes (Av des )", "CELTES", "204", "8102", "38 à 62", "31 à 75"],
+["S3B15", "Celtes (Av des )", "TONGRES", "8101", "", "2 à 38", "1 à 31"],
+["S3B15.1", "Auderghem (Av d )", "CELTES", "204", "8102", "", ""],
+["S3B15.2", "Boers (Rue des )", "CELTES", "204", "8102", "", ""],
+["S3B15.3", "Capiaumont (Rue Général )", "CELTES", "204", "8102", "", ""],
+["S3B15.4", "Saint-Pierre (Ch)", "CELTES", "204", "8102", "", ""],
+["S3B15.5", "Digue (Rue de la )", "CELTES", "204", "8102", "", ""],
+["S3B15.6", "Erables (Rue des )", "CELTES", "204", "8102", "", ""],
+["S3B15.7", "Francs (Rue des)", "CELTES", "204", "8102", "", ""],
+["S3B15.8", "Haerne (Rue de )", "CELTES", "204", "8102", "", ""],
+["S3B15.9", "Jonchaie (Rue de la )", "CELTES", "204", "8102", "", ""],
+["S3B15.10", "Levure (Rue de la )", "CELTES", "204", "8102", "", ""],
+["S3B15.11", "Moissonneurs (Rue des)", "CELTES", "204", "8102", "", ""],
+["S3B15.12", "Nouvelle (Av)", "CELTES", "204", "8102", "", ""],
+["S3B15.13", "Onze Novembre (Av du)", "CELTES", "204", "8102", "", ""],
+["S3B15.14", "Acacias (Pl des)", "CELTES", "204", "8102", "", ""],
+["S3B15.15", "Tervueren (Porte de)", "CELTES", "204", "8102", "", ""],
+["S3B15.16", "Theux (Rue de)", "CELTES", "204", "8102", "", ""],
+["S3B16", "DPT XL", "DPT XL CAN-BONDAEL", "223", "", "", ""],
+["S3B16", "DPT XL", "DPT XL COUVENT", "214", "", "", ""],
+["S3B17", "Hippodrome (Av de l )", "BERNIER", "212", "222", "2 à 158", "1 à 131"],
+["S3B17", "Hippodrome (Av de l )", "DPT XL COUVENT", "214", "", "", ""],
+["S3B17", "Hippodrome (Av de l )", "BUYL", "215", "220", "178 à 212", "131 à 175"],
+["S3C1", "Buyl (Av Adolphe )", "BUYL", "215", "220", "2 à 16", "1 à 11"],
+["S3C1", "Buyl (Av Adolphe )", "BANNING", "217", "502", "16 à 202", "11 à 179"],
+["S3C2", "Jacques (Bld Général)", "BUYL", "215", "220", "16 à 76", "1 à 69"],
+["S3C2", "Jacques (Bld Général)", "COURONNE-LANCIERS", "219", "1104", "76 à 294", "69 à 265"],
+["S3C2.1", "Maurice (Av )", "BUYL", "215", "220", "", ""],
+["S3C2.1", "Maurice (Av )", "BANNING", "217", "502", "", ""],
+["S3C3", "Schmidt (Bld Louis)", "COURONNE-LANCIERS", "219", "1104", "2", "1 à 7"],
+["S3C3", "Schmidt (Bld Louis)", "ST-MICHEL", "1101", "4104", "72 à 80", "91 à 105"],
+["S3C3", "Schmidt (Bld Louis)", "TERVAETEN", "1102", "1103", "2 à 70", "29 à 87"],
+["S3C3.1", "Petillon (Metro)", "TERVAETEN", "1102", "1103", "", ""],
+["S3C3.2", "Boondael (Ch de)", "COURONNE-LANCIERS", "219", "1104", "", ""],
+["S3C3.2", "Boondael (Ch de)", "FLAGEY", "206", "208", "", ""],
+["S3C3.3", "Saisons (Av des)", "COURONNE-LANCIERS", "219", "1104", "", ""],
+["S3C3.4", "Saint-Michel (Blv)", "TERVAETEN", "1102", "1103", "", ""],
+["S3C3.5", "Trémie BOILEAU", "ST-MICHEL", "1101", "4104", "", ""],
+["S3C4", "Deveze (Sq Albert )", "BANNING", "217", "502", "", ""],
+["S3C5", "Solbosch (Sq du)", "BANNING", "217", "502", "2 à 36", "1 à 37"],
+["S3C6", "Pesage (Av du )", "BANNING", "217", "502", "2 à 136", "1 à 137"],
+["S3C7", "Marie-José (Pl)", "BANNING", "217", "502", "2 à 16", "1 à 15"],
+["S3C8", "Derby (Av du)", "BONDAEL", "501", "504", "2 à 60", "1 à 61"],
+["S3C8.1", "Huysmans (Av Armand )", "BANNING", "217", "502", "", ""],
+["S3C8.2", "Université (Av de l )", "BANNING", "217", "502", "", ""],
+["S3C8.3", "Phalènes (Av des)", "BANNING", "217", "502", "", ""],
+["S3C9", "Forêt (Av de la )", "BONDAEL", "501", "504", "2 à 178", "1 à 113"],
+["S3C9", "Forêt (Av de la )", "HULPE", "503", "9503", "178 à 200", "115 à 221"],
+["S3C10", "Roosevelt (Av Franklin)", "CAMBRE", "201", "211", "1", "2"],
+["S3C10", "Roosevelt (Av Franklin)", "HULPE", "503", "9503", "244 à 262", "53"],
+["S3C11", "Hulpe (Ch de la)", "HULPE", "503", "9503", "86 à 178", "53 à 195"],
+["S3C12", "Delleur (Av)", "HULPE", "503", "9503", "2 à 22", "11 à 57"],
+["S3C13", "Wiener (Pl)", "HULPE", "503", "9503", "2 à 14", "1 à 15"],
+["S3C13.1", "Bischoffsheim (Pl)", "HULPE", "503", "9503", "", ""],
+["S3C14", "Souverain (Bld du)", "HULPE", "503", "9503", "", "1 à 7"],
+["S3C14", "Souverain (Bld du)", "FLOREAL", "5701", "9502", "2 à 166", "9 à 55"],
+["S3C14", "Souverain (Bld du)", "SOUVERAIN", "5703", "25702", "166 à 412", "65 à 275"],
+["S3C14", "Souverain (Bld du)", "PARMENTIER", "10802", "10808", "", ""],
+["S4A1", "Yser (Av de l')", "TONGRES", "8101", "", "2 à 10", "1 à 9"],
+["S4A1.1", "Tongres (rue des)", "TONGRES", "8101", "", "", ""],
+["S4A2", "Tervuren (Av de)  1ere PARTIE", "TONGRES", "8101", "", "8 à 30", "7 à 29"],
+["S4A2", "Tervuren (Av de)  1ere PARTIE", "DUCHESSE", "4102", "8103", "30 à 150", "31 à 149"],
+["S4A2", "Tervuren (Av de)  1ere PARTIE", "MARTIN", "4101", "10804", "150 à 332", "149 à 332"],
+["S4A2", "Tervuren (Av de)  1ere PARTIE", "PARMENTIER", "10802", "10808", "", ""],
+["S4A3", "Duchesse (Rue de la)", "DUCHESSE", "4102", "8103", "2 à 34", "4 à 33"],
+["S4A4", "Brand Withlock (Bld)", "DUCHESSE", "4102", "8103", "", ""],
+["S4A5", "Duc (Rue du)", "DUCHESSE", "4102", "8103", "94 à 132", "117 à 145"],
+["S4A5", "Duc (Rue du)", "MARTIN", "4101", "10804", "76 à 94", "91 à 105"],
+["S4A5.1", "Trémie RUE DU DUC", "MARTIN", "4101", "10804", "", ""],
+["S4A6", "Montgomery (square)", "DUCHESSE", "4102", "8103", "", ""],
+["S4A6.1", "Broqueville (Av de)", "DUCHESSE", "4102", "8103", "", ""],
+["S4A7", "Léopold 2 (square)", "MARTIN", "4101", "10804", "", ""],
+["S4A7.1", "Cambre (Rue de la)", "MARTIN", "4101", "10804", "", ""],
+["S4A7.2", "Martin (Rue Georges & Jacques)", "MARTIN", "4101", "10804", "", ""],
+["S4A8", "DPT WOLUWE", "DPT WOLUWE", "10807", "", "", ""],
+["S4A9", "Woluwe (Bld de la)", "VOOT", "10809", "22703", "2 à 64", "69 à 73"],
+["S4A10", "Hymans (Av Paul)", "VOOT", "10809", "22703", "", ""],
+["S4A10", "Hymans (Av Paul)", "NEERVELD", "22701", "22702", "", ""],
+["S4A10.1", "Terminus ROODEBEEK", "NEERVELD", "22701", "22702", "", ""],
+["S4A11", "Spaak (cours Paul-Henri)", "NEERVELD", "22701", "22702", "", ""],
+["S4B1", "Tervuren (Av de) 2eme PARTIE", "ET MELLAERTS", "9604", "10806", "412", ""],
+["S4B1", "Tervuren (Av de) 2eme PARTIE", "PUTDAEL", "1301", "10801", "", ""],
+["S4B1", "Tervuren (Av de) 2eme PARTIE", "CHENE", "1302", "", "", ""],
+["S4B1", "Tervuren (Av de) 2eme PARTIE", "HOOGVORST", "1303", "", "", ""],
+["S4B1", "Tervuren (Av de) 2eme PARTIE", "HERTONGEN", "1304", "", "", ""],
+["S4B1.1", "Quatre-bras (Carrefour)", "CHENE", "1302", "", "", ""],
+["S4B1.2", "Terminus TERVUEREN", "HERTONGEN", "1304", "", "", ""],
+["S4B2", "Madoux (Av Alfred)", "MADOUX", "9602", "9603", "2 à 44", "11 à 149"],
+["S4B3", "Orban (Av)", "ORBAN", "9601", "9701", "12 à 248", "9 à 239"],
+["S4B3", "Orban (Av)", "MADOUX", "9602", "9603", "2 à 12", "1 à 53"],
+["S4B3.1", "Val des seigneurs", "ORBAN", "9601", "9701", "", ""],
+["S4B4", "Dumon (Pl)", "ORBAN", "9601", "9701", "2 à 26", "1 à 25"],
+["S4B5", "Hinnisdael (Av d')", "ORBAN", "9601", "9701", "2 à 44", "1 à 61"],
+["S4B6", "Limite (Site propre)", "OPPEM", "9801", "25702", "", ""],
+["S4B7", "Oppem (Site propre)", "LIMITE", "9703", "9803", "", ""],
+["S4B7.1", "Terminus BAN-EIK", "OPPEM", "9801", "25702", "", ""],
+["S4C1", "Reyers (Bld Auguste)", "REYERS", "2602", "10304", "2 à 40", "1 à 9"],
+["S4C1.1", "Trémie MEISER", "REYERS", "2602", "10304", "", ""],
+["S4A1.2", "PREMETRO GC", "REYERS", "2602", "10304", "", ""],
+["S4A1.2", "PREMETRO GC", "BRAND WITHLOCK", "2601", "4103", "", ""],
+["S4A1.2", "PREMETRO GC", "ST MICHEL", "1101", "4104", "", ""],
+["S4C2", "Meiser (Pl)", "REYERS", "2602", "10304", "", ""],
+["S4C2", "Meiser (Pl)", "CHAZAL", "7904", "10303", "", ""],
+["S4C2", "Meiser (Pl)", "PAVOTS", "2603", "10305", "", ""],
+["S4C3", "Wahis (Bld Général)", "REYERS", "2602", "10304", "278 à 280", ""],
+["S4C3", "Wahis (Bld Général)", "CHAZAL", "7904", "10303", "2 à 280", "1 à 55"],
+["S4C4", "Léopold 3 (Bld)", "LEOPOLD 3", "8503", "10301", "", ""],
+["S4C4", "Léopold 3 (Bld)", "FUSEE", "8504", "8508", "", ""],
+["S4C4", "Léopold 3 (Bld)", "BOURGET", "22101", "22103", "", ""],
+["S4C4", "Léopold 3 (Bld)", "OTAN", "22102", "22104", "", ""],
+["S4C4", "Léopold 3 (Bld)", "HARENWEG", "22103", "", "", ""],
+["S4C4.1", "Terminus EUROCONTROLE", "OTAN", "22102", "22104", "", ""],
+["S4C4.1", "Terminus EUROCONTROLE", "HARENWEG", "22103", "", "", ""],
+["S4C5", "Fusée (Rue de la)", "BOURGET", "22101", "22103", "", ""],
+["S4C5", "Fusée (Rue de la)", "OTAN", "22102", "22104", "", ""],
+["S4C5.1", "DA VINCI", "FUSEE", "8504", "8508", "", ""],
+["S4C6", "Bourget (Av du)", "BOURGET", "22101", "22103", "", ""],
+["S4C6", "Bourget (Av du)", "HARENWEG", "22103", "", "", ""],
+["S5A1", "Progrès (Rue du)", "PROGRES", "4504", "25003", "214 à 216", "223 à 303"],
+["S5A1", "Progrès (Rue du)", "THOMAS", "25004", "25005", "", "317 à 365"],
+["S5A1.1", "Trémie PROGRES", "PROGRES", "4504", "25003", "", ""],
+["S5A1.2", "PREMETRO N/S", "TERMINUS ROGIER", "4506", "4507", "", ""],
+["S5A1.2", "PREMETRO N/S", "PROGRES", "4504", "25003", "", ""],
+["S5A1.2", "PREMETRO N/S", "LENOIR", "4502", "4503", "", ""],
+["S5A1.2", "PREMETRO N/S", "MAX", "4501", "4602", "", ""],
+["S5A1.2", "PREMETRO N/S", "WOERINGEN", "4601", "14705", "", ""],
+["S5A2", "Liedts (Pl)", "THOMAS", "25004", "25005", "20 à 22", "21 à 23"],
+["S5A2", "Liedts (Pl)", "GALLAIT", "23704", "25006", "2 à 20", "1 à 21"],
+["S5A2", "Liedts (Pl)", "ROYALE", "5101", "25002", "24 à 28", "23 à 29"],
+["S5A3", "Reine (Av de la)", "THOMAS", "25004", "25005", "2 à 98", "1 à 109"],
+["S5A3", "Reine (Av de la)", "REINE", "2103", "2104", "98 à 204", "109 à 235"],
+["S5A3", "Reine (Av de la)", "STEPHANIE", "2101", "23506", "206 à 304", "237 à 327"],
+["S5A4", "Thomas (Tunnel)", "THOMAS", "25004", "25005", "", ""],
+["S5A4.1", "Aerschot (Rue d')", "THOMAS", "25004", "25005", "", ""],
+["S5A4.2", "Liedts (Rue)", "THOMAS", "25004", "25005", "", ""],
+["S5A5", "De Trooz (square Jules)", "REINE", "2103", "2104", "", ""],
+["S5A5.1", "Gaucheret (Rue)", "REINE", "2103", "2104", "", ""],
+["S5A5.2", "Pont de l'Avenue (Rue du)", "REINE", "2103", "2104", "", ""],
+["S5A6", "Usines (Quai des)", "USINE", "2102", "23404", "2 à 158", "1 à 163"],
+["S5A7", "Gallait (Rue)", "GALLAIT", "23704", "25006", "2 à 204", "1 à 155"],
+["S5A8", "Pavillon (Pl du)", "GALLAIT", "23704", "25006", "", ""],
+["S5A9", "van Oost (Rue)", "GALLAIT", "23704", "25006", "2 à 76", "1 à 67"],
+["S5A9.1", "Fraikin (Rue)", "GALLAIT", "23704", "25006", "", ""],
+["S5A9.2", "Pavillon (Rue du)", "GALLAIT", "23704", "25006", "", ""],
+["S5A9.3", "Renkin (Rue)", "GALLAIT", "23704", "25006", "", ""],
+["S5B1", "Lambermont (Av)", "PORTAELS", "23403", "23706", "", ""],
+["S5B1", "Lambermont (Av)", "AV PR ELISABETH", "23702", "23707", "30 à 70", "3 à 55"],
+["S5B1", "Lambermont (Av)", "LAMBERMONT", "7903", "23705", "70 à 374", "55 à 227"],
+["S5B1", "Lambermont (Av)", "CHAZAL", "7904", "10303", "376 à 480", "407 à 411"],
+["S5B2", "Van Praet (Pont)", "PORTAELS", "23403", "23706", "", ""],
+["S5B3", "Vilvorde (Chée de)", "PORTAELS", "23403", "23706", "", ""],
+["S5B3", "Vilvorde (Chée de)", "VAN PRAET", "23402", "25701", "", ""],
+["S5B3.1", "Navez (Rue François-Joseph)", "PORTAELS", "23403", "23706", "", ""],
+["S5B3.1", "Navez (Rue François-Joseph)", "GALLAIT", "23704", "25006", "", ""],
+["S5B4", "Teichmann (Pont)", "PORTAELS", "23403", "23706", "", ""],
+["S5B5", "Elisabeth (Av Princesse)", "AV PR ELISABETH", "23702", "23707", "8 à 180", "5 à 175"],
+["S5B5", "Elisabeth (Av Princesse)", "PL VERBOECKHOVEN", "23703", "23709", "2 à 8", "1 à 5"],
+["S5B6", "Elisabeth (Pl Princesse)", "AV PR ELISABETH", "23702", "23707", "2 à 44", "1 à 19"],
+["S5B6.1", "Schaerbeek (Gare de)", "AV PR ELISABETH", "23702", "23707", "", ""],
+["S5B7", "Verboeckhoven (Pl)", "PL VERBOECKHOVEN", "23703", "23709", "2 à 14", "1 à 15"],
+["S5B7.1", "Portaels (Rue)", "PORTAELS", "23403", "23706", "152 à 158", ""],
+["S5B7.2", "Demolder (Rue Eugene)", "PL VERBOECKHOVEN", "23703", "23709", "", ""],
+["S5C1", "Foch (Av Maréchal)", "FOCH", "101", "23701", "18 à 92", "17 à 87"],
+["S5C1", "Foch (Av Maréchal)", "PL VERBOECKHOVEN", "23703", "23709", "92 à 98", "87 à 91"],
+["S5C2", "Ailes (Rue des)", "FOCH", "101", "23701", "26 à 68", "25 à 67"],
+["S5C3", "Goossens (Rue)", "FOCH", "101", "23701", "2 à 30", "1 à 43"],
+["S5C3.1", "Bergé (Rue Henri )", "FOCH", "101", "23701", "", ""],
+["S5C3.2", "Bertrand (Av Louis)", "FOCH", "101", "23701", "", ""],
+["S5C3.3", "Eenens (Rue Général)", "FOCH", "101", "23701", "", ""],
+["S5C3.4", "Hancart (Rue)", "FOCH", "101", "23701", "", ""],
+["S5C3.5", "Laude (Rue Ernest)", "FOCH", "101", "23701", "", ""],
+["S5C3.6", "Pogge (Pl)", "FOCH", "101", "23701", "", ""],
+["S5C3.7", "Rubens (Rue)", "FOCH", "101", "23701", "114 à 116", ""],
+["S5C3.7", "Rubens (Rue)", "GALLAIT", "23704", "25006", "", ""],
+["S5C3.8", "Vogler (Rue)", "FOCH", "101", "23701", "", ""],
+["S5C4", "DPT SCHAERBEEK", "DPT SCHAERBEEK", "103", "", "", ""],
+["S5C5", "Haecht (Ch de)", "FOCH", "101", "23701", "190 à 410", "191 à 363"],
+["S5C5", "Haecht (Ch de)", "ROYALE", "5101", "25002", "134 à 188", "139 à 189"],
+["S5C5", "Haecht (Ch de)", "AV ROGIER", "7901", "25001", "", ""],
+["S5C5.1", "Carrefour Av Rogier/Haecht", "AV ROGIER", "7901", "25001", "", ""],
+["S5C6", "Reine (Pl de la)", "ROYALE", "5101", "25002", "2 à 50", "1 à 49"],
+["S5C7", "Palais (Rue des)", "ROYALE", "5101", "25002", "2 à 126", "1 à 95"],
+["S5C7.1", "St-Marie (Eglise)", "ROYALE", "5101", "25002", "", ""],
+["S5C7.2", "Brabant (Rue de)", "ROYALE", "5101", "25002", "", ""],
+["S5C7.3", "Dupont (Rue)", "ROYALE", "5101", "25002", "", ""],
+["S5C7.4", "Poste (Rue de la)", "ROYALE", "5101", "25002", "", ""],
+["S5C8", "Rogier (Rue)", "ROYALE", "5101", "25002", "180 à 188", "193 à205"],
+["S5C8", "Rogier (Rue)", "AV ROGIER", "7901", "25001", "190 à 230", "205 à 257"],
+["S5C9", "Royale (Rue)", "ROYALE", "5101", "25002", "236 à 344", "163 à 275"],
+["S5C9", "Royale (Rue)", "CONGRES", "5103", "15001", "10 à 206", "1 à 163"],
+["S5C9", "Royale (Rue)", "SABLONS", "15002", "15003", "2 à 10", "3 à 9"],
+["S5C9.1", "Jardin Botanique", "CONGRES", "5103", "15001", "", ""],
+["S5C9.1", "Jardin Botanique", "ROYALE", "5101", "25002", "", ""],
+["S5C9.2", "Palais (Pl des)", "CONGRES", "5103", "15001", "", ""],
+["S5C9.2", "Palais (Pl des)", "SABLONS", "15002", "15003", "", ""],
+["S5C9.3", "Palais Royale", "CONGRES", "5103", "15001", "", ""],
+["S5C9.3", "Palais Royale", "SABLONS", "15002", "15003", "", ""],
+["S5C9.4", "Schaerbeek (Porte de)", "CONGRES", "5103", "15001", "", ""],
+["S5C10", "Royale (Pl)", "SABLONS", "15002", "15003", "2 à 12", "1 à 11"],
+["S5C11", "Régence (Rue de la)", "SABLONS", "15002", "15003", "2 à 60", "1 à 67"],
+["S5C12", "Poelaert (Pl)", "SABLONS", "15002", "15003", "", ""],
+["S5C12", "Poelaert (Pl)", "LAINES", "5202", "", "", ""],
+["S5C12.1", "PALAIS DE JUSTICE", "SABLONS", "15002", "15003", "", ""],
+["S5C12.1", "PALAIS DE JUSTICE", "LAINES", "5202", "", "", ""],
+["S5C12.2", "Arbre (Rue de l')", "SABLONS", "15002", "15003", "", ""],
+["S5C12.3", "Bodenbroeck (Rue)", "SABLONS", "15002", "15003", "", ""],
+["S5C12.4", "Petit Sablon (Pl du)", "SABLONS", "15002", "15003", "", ""],
+["S5C12.5", "Sablon (Rue des)", "SABLONS", "15002", "15003", "", ""],
+["S5D1", "Bordet (Av Jules)", "VAN CUTSEM", "8505", "8510", "", ""],
+["S5D2", "Van Cutsem (Rue Frans)", "VAN CUTSEM", "8505", "8510", "106 à 132", ""],
+["S5D3", "DPT HAREN", "DPT HAREN", "2501", "2506", "", ""],
+["S5D3", "DPT HAREN", "DPT HAREN HALL 1", "2505", "", "", ""],
+["S5D3", "DPT HAREN", "DPT HAREN HALL 2", "2502", "", "", ""],
+["S5D3", "DPT HAREN", "DPT HAREN HALL 3", "2503", "", "", ""],
+["S5D4", "Houtweg", "PARIS", "8501", "17804", "", ""],
+["S5D5", "Biplan (Rue du)", "PARIS", "8501", "17804", "", ""],
+["S5D6", "Fonson (Rue)", "PARIS", "8501", "17804", "2 à 26", ""],
+["S5D7", "Dekoster (Rue Edouard )", "PARIS", "8501", "17804", "2 à 88", "13 à 91"],
+["S5D8", "Paix (Pl de la)", "PARIS", "8501", "17804", "2 à 14", "19 à 33"],
+["S5D9", "Stuckens (Rue Edourd)", "PARIS", "8501", "17804", "154 à 164", "131 à 141"],
+["S5D9", "Stuckens (Rue Edourd)", "VAN HAMME", "17801", "17802", "2 à 154", "3 à 131"],
+["S5D9.1", "Paris (Rue de)", "PARIS", "8501", "17804", "", ""],
+["S5D9.2", "Sohie (Rue Arnold )", "PARIS", "8501", "17804", "", ""],
+["S5D10", "Van Hamme (Rue)", "VAN HAMME", "17801", "17802", "2 à 110", "1 à 145"],
+["S5D10.1", "Tilleul (Rue du)", "VAN HAMME", "17801", "17802", "", ""],
+["S5D10.2", "Van Perck (Rue Willebrord)", "VAN HAMME", "17801", "17802", "", ""],
+["S5D11", "Helmet (Ch d')", "VAN HAMME", "17801", "17802", "308 à 398", "317 à 391"],
+["S5D11", "Helmet (Ch d')", "HELMET", "17803", "23708", "44 à 308", "59 à 317"],
+["S5D12", "Waelhem (Rue)", "HELMET", "17803", "23708", "12 à 130", "5 à 97"],
+["S5D12", "Waelhem (Rue)", "PL VERBOECKHOVEN", "23703", "23709", "2 à 12", "1 à 5"],
+["S5D12.1", "Bruyère (Rue de la)", "HELMET", "17803", "23708", "", ""],
+["S5D12.2", "Corbeau (Rue du)", "HELMET", "17803", "23708", "", ""],
+["S5D12.3", "De Tiere (Rue Nestor )", "HELMET", "17803", "23708", "", ""],
+["S5D12.4", "Desenfants (Av Albert )", "HELMET", "17803", "23708", "", ""],
+["S5D12.5", "Foyer Schaerbeekois (Rue du)", "HELMET", "17803", "23708", "", ""],
+["S5D12.6", "Huart-Hamoir (Av)", "HELMET", "17803", "23708", "", ""],
+["S5E1", "Rogier (Av)", "AV ROGIER", "7901", "25001", "2 à 178", "1 à 217"],
+["S5E1", "Rogier (Av)", "PATRIE", "7902", "7905", "178 à 330", "217 à 371"],
+["S5E1", "Rogier (Av)", "PAVOTS", "2603", "10305", "336 à 416", "377 à 431"],
+["S5E1.1", "Côteaux (Rue des)", "AV ROGIER", "7901", "25001", "", ""],
+["S5E1.2", "Dailly (Av)", "AV ROGIER", "7901", "25001", "", ""],
+["S5E1.3", "Deschanel (Av Paul)", "AV ROGIER", "7901", "25001", "", ""],
+["S5E1.4", "Eisenhower (Av Général Dwight)", "AV ROGIER", "7901", "25001", "", ""],
+["S5E1.5", "Royale-Sainte-Marie (Rue)", "AV ROGIER", "7901", "25001", "", ""],
+["S5E2", "Bienfaiteurs (Pl des)", "PATRIE", "7902", "7905", "2 à 32", "1 à 31"],
+["S5E3", "Patrie (Pl de la)", "PATRIE", "7902", "7905", "2 à 54", "1 à 55"],
+["S5E3.1", "Chazal (Av)", "PATRIE", "7902", "7905", "", ""],
+["S5E3.1", "Chazal (Av)", "CHAZAL", "7904", "10303", "", ""],
+["S5E3.2", "Pavots (Rue des)", "PATRIE", "7902", "7905", "", ""],
+["S5E3.3", "Binjé (Rue Frans )", "PATRIE", "7902", "7905", "", ""],
+["S6A1", "Croix de feux (Av des)", "VAN PRAET", "23402", "25701", "", ""],
+["S6A1", "Croix de feux (Av des)", "ARAUCARIA", "8402", "25702", "", "3 à 309"],
+["S6A2", "Léopold 2 (Tunnel)", "VAN PRAET", "23402", "25701", "", ""],
+["S6A3", "De Wand", "ARAUCARIA", "8402", "25702", "", ""],
+["S6A3", "De Wand", "EBENIERS", "8401", "25505", "", ""],
+["S6A4", "Meise (Av de)", "ARAUCARIA", "8402", "25702", "", ""],
+["S6A4", "Meise (Av de)", "EBENIERS", "8401", "25505", "", ""],
+["S6A4", "Meise (Av de)", "AV DE MEISE", "8403", "8407", "", ""],
+["S6A5", "Esplanade", "AV DE MEISE", "8403", "8407", "", ""],
+["S6A6", "Gros Tilleul", "AV DE MEISE", "8403", "8407", "", ""],
+["S6A7", "Hembeek (rue de)", "ZAVELPUT", "23401", "25705", "2 à 288", "1 à 267"],
+["S6A8", "Vekemans (rue François)", "ZAVELPUT", "23401", "25705", "162 à 218", "151 à 213"],
+["S6A8", "Vekemans (rue François)", "CHEMIN VERT", "25704", "25803", "2 à 158", "19 à 151"],
+["S6A9", "Chemin vert", "CHEMIN VERT", "25704", "25803", "", ""],
+["S6A9.1", "Ransbeek (rue de)", "CHEMIN VERT", "25704", "25803", "", ""],
+["S6A9.1", "Ransbeek (rue de)", "VAN OSS", "25802", "25902", "", ""],
+["S6A10", "Tyras (Av de)", "VAN OSS", "25802", "25902", "", ""],
+["S6A10", "Tyras (Av de)", "BRUYN", "25903", "25904", "", ""],
+["S6A10.1", "MARLY (Dpt Bus)", "BRUYN", "25903", "25904", "", ""],
+["S6A11", "Bruyn (Rue)", "BRUYN", "25903", "25904", "", ""],
+["S6A11.1", "Terminus HOPITAL MILITAIRE", "BRUYN", "25903", "25904", "", ""],
+["S6B1", "Heysel (Rue du)", "EBENIERS", "8401", "25505", "2", ""],
+["S6B1.1", "tunnel vicinal", "EBENIERS", "8401", "25505", "", ""],
+["S6B2", "Saint-Lambert (Pl)", "EBENIERS", "8401", "25505", "", ""],
+["S6B2", "Saint-Lambert (Pl)", "SOBIESKY", "23503", "25502", "", ""],
+["S6B2", "Saint-Lambert (Pl)", "GRANDS PALAIS", "25501", "25504", "", ""],
+["S6B3", "Sobiesky (Av jean)", "SOBIESKY", "23503", "25502", "2 à 84", "1 à 83"],
+["S6B4", "Smets de Nayer (Bld)", "SOBIESKY", "23503", "25502", "518 à 598", "523 à 653"],
+["S6B4", "Smets de Nayer (Bld)", "DEMINEURS", "1002", "23502", "314 à 518", "383 à 423"],
+["S6B4", "Smets de Nayer (Bld)", "WOESTE", "401", "1003", "276 à 290", "277 à 293"],
+["S6B4", "Smets de Nayer (Bld)", "THEODOR", "1004", "22905", "2", "1"],
+["S6B4.1", "Laumans (Rue Jean)", "SOBIESKY", "23503", "25502", "", ""],
+["S6B4.2", "Péret (Rue Léopold)", "SOBIESKY", "23503", "25502", "", ""],
+["S6B5", "Grand-Palais (Rampe)", "GRANDS PALAIS", "25501", "25504", "", ""],
+["S6B5.1", "Terminus HEYSEL", "GRANDS PALAIS", "25501", "25504", "", ""],
+["S6B6", "Lahaye (Rue Jules)", "DEMINEURS", "1002", "23502", "78 à 86", "119 à 127"],
+["S6B6", "Lahaye (Rue Jules)", "FRANSMAN", "1001", "23505", "130 à 292", "135 à 241"],
+["S6B6.1", "Augustines (Rue de)", "DEMINEURS", "1002", "23502", "", ""],
+["S6B6.2", "Démineurs (Av)", "DEMINEURS", "1002", "23502", "", ""],
+["S6B7", "Steyls (Rue)", "FRANSMAN", "1001", "23505", "2 à 124", "5 à 77"],
+["S6B8", "Fransman (Rue)", "FRANSMAN", "1001", "23505", "10 à 62", "9 à 55"],
+["S6B8", "Fransman (Rue)", "STEPHANIE", "2101", "23506", "2 à 10", "1 à 9"],
+["S6B8.1", "Bollen (Rue Jan )", "FRANSMAN", "1001", "23505", "", ""],
+["S6B8.2", "Delva (Rue Emile)", "FRANSMAN", "1001", "23505", "", ""],
+["S6B8.3", "Esseghem (Rue)", "FRANSMAN", "1001", "23505", "", ""],
+["S6B8.4", "Mode Vliebergh (Rue)", "FRANSMAN", "1001", "23505", "", ""],
+["S6B9", "Léopold 1er (Rue)", "STEPHANIE", "2101", "23506", "2", "1"],
+["S6B9", "Léopold 1er (Rue)", "WOESTE", "401", "1003", "", ""],
+["S6B9", "Léopold 1er (Rue)", "THEODOR", "1004", "22905", "", ""],
+["S6B10", "Stéphanie (Rue)", "STEPHANIE", "2101", "23506", "2 à 176", "1 à 175"],
+["S6B11", "Bockstael (Pl Emile)", "STEPHANIE", "2101", "23506", "", ""],
+["S6C1", "De greef (Av Guillaume)", "MASOIN", "23501", "23801", "2 à 10", "7 à 59"],
+["S6C2", "Van Gehuchten (Pl Arthur )", "MASOIN", "23501", "23801", "2 à 4", "1 à 19"],
+["S6C3", "Masoin (Av Ernest)", "MASOIN", "23501", "23801", "2 à 10", "5 à 137"],
+["S6C3.1", "Hubert (Rue Eugène)", "MASOIN", "23501", "23801", "", ""],
+["S6C4", "Rommelaere (Av)", "MASOIN", "23501", "23801", "10", "39 à 55"],
+["S6C4", "Rommelaere (Av)", "KUFFERATH", "23802", "24901", "", "65 à177"],
+["S6C5", "Stiénon (Av)", "KUFFERATH", "23802", "24901", "2 à 100", "1 à 101"],
+["S6C6", "Palfyn (Av Jean )", "KUFFERATH", "23802", "24901", "8 à 14", ""],
+["S6C7", "Houba Destrooper (Av)", "KUFFERATH", "23802", "24901", "", ""],
+["S6C7", "Houba Destrooper (Av)", "IMPERATRICE", "24905", "", "", ""],
+["S6C7", "Houba Destrooper (Av)", "SOBIESKY", "23503", "25502", "34 à 36", "19 à 21"],
+["S6C8", "Palfyn (square Jean)", "KUFFERATH", "23802", "24901", "", ""],
+["S6C9", "Stade", "KUFFERATH", "23802", "24901", "", ""],
+["S6C9.1", "Terminus KUFFERATH", "KUFFERATH", "23802", "24901", "", ""],
+["S6C10", "De Ceuninck (Av Général)", "IMPERATRICE", "24905", "", "", "1"],
+["S6C10", "De Ceuninck (Av Général)", "DECEUNINCK", "24902", "25702", "", "1 à 65"],
+["S6C10", "De Ceuninck (Av Général)", "SCHAPENWEG", "23005", "24903", "", "75 à 79"],
+["S6C11", "Arbre Ballon (Av de l')", "SCHAPENWEG", "23005", "24903", "10 à 128", "249 à 253"],
+["S6C11", "Arbre Ballon (Av de l')", "DIELEGHEM", "23001", "23004", "132 à 136", ""],
+["S7A1", "Laerbeek (Av du)", "RIVIEREN", "22902", "23003", "70 à 74", "15 à 33"],
+["S7A1", "Laerbeek (Av du)", "DIELEGHEM", "23001", "23004", "98 à 102", "33 à 39"],
+["S7A2", "Exposition (Av de l')", "RIVIEREN", "22902", "23003", "218 à 324", "195 à 311"],
+["S7A2", "Exposition (Av de l')", "SCHAPENWEG", "23005", "24903", "456 à 462", ""],
+["S7A3", "Exposition Universelle (Av de l')", "RIVIEREN", "22902", "23003", "92 à 108", "97 à 131"],
+["S7A3.1", "HOME (Pl du)", "RIVIEREN", "22902", "23003", "", ""],
+["S7A4", "Centenaire (square du)", "RIVIEREN", "22902", "23003", "20 à 24", "19 à 25"],
+["S7A4", "Centenaire (square du)", "FENAISON", "8306", "22901", "26 à 30", "25 à 31"],
+["S7A4.1", "Ancienne barrière (pl de l')", "RIVIEREN", "22902", "23003", "", ""],
+["S7A5", "Jette (Av de)", "FENAISON", "8306", "22901", "276 à 430", "225 à 345"],
+["S7A5", "Jette (Av de)", "AV DE JETTE", "8305", "22904", "80 à 274", "27 à 223"],
+["S7A5.1", "Trémie AV DE JETTE", "AV DE JETTE", "8305", "22904", "", ""],
+["S7A5.2", "Carton de Wiart (Av)", "AV DE JETTE", "8305", "22904", "", ""],
+["S7A5.3", "Broustin (Av)", "AV DE JETTE", "8305", "22904", "", ""],
+["S7A5.4", "Archers (Rue des)", "AV DE JETTE", "8305", "22904", "", ""],
+["S7A6", "Laeken (Av de)", "THEODOR", "1004", "22905", "2 à 30", "5 à 35"],
+["S7A6", "Laeken (Av de)", "AV DE JETTE", "8305", "22904", "30 à 34", "35 à 39"],
+["S7A7", "Jette (Ch de)", "THEODOR", "1004", "22905", "580 à 610", "605 à 695"],
+["S7A8", "Théodor (Rue Léon)", "THEODOR", "1004", "22905", "2 à 260", "1 à 249"],
+["S7A9", "Mercier (Pl Cardinal)", "THEODOR", "1004", "22905", "", "35 à 51"],
+["S7A10", "Secrétin (Av)", "THEODOR", "1004", "22905", "", "5 à 31"],
+["S7A10.1", "Reine Astrid (Pl)", "THEODOR", "1004", "22905", "", ""],
+["S7A10.2", "Wemmel (Ch de)", "THEODOR", "1004", "22905", "", ""],
+["S7A10.3", "Michiels (Rue Paul)", "THEODOR", "1004", "22905", "", ""],
+["S7A10.4", "Lenoir (Rue Ferdinand)", "THEODOR", "1004", "22905", "", ""],
+["S7A10.4", "Lenoir (Rue Ferdinand)", "WOESTE", "401", "1003", "", ""],
+["S7A10.5", "Verbeyst (Rue Jean-Baptiste)", "THEODOR", "1004", "22905", "", ""],
+["S7A11", "TERMINUS DE NECK", "DE NECK", "8302", "", "", ""],
+["S7A12", "Panthéon (Av du)", "LIBERTE", "8301", "8304", "2 à 120", "1 à 119"],
+["S7A12.1", "Gare SIMONIS", "LIBERTE", "8301", "8304", "", ""],
+["S7A12.2", "Basilique (Av de la)", "LIBERTE", "8301", "8304", "", ""],
+["S7A12.3", "Liberté (Av de la)", "LIBERTE", "8301", "8304", "", ""],
+["S7A12.4", "Bossaert (Av Emile)", "LIBERTE", "8301", "8304", "", ""],
+["S7B1", "Hôpital Français (Av de l')", "LIBERTE", "8301", "8304", "2 à 8", "3 à 9"],
+["S7B1", "Hôpital Français (Av de l')", "HOPITAL FRANCAIS", "8303", "11704", "8 à 100", "9 à 119"],
+["S7B2", "Goffin (Av Josse)", "HOPITAL FRANCAIS", "8303", "11704", "14 à 250", "3 à 239"],
+["S7B2", "Goffin (Av Josse)", "GRAND BIGARD", "11701", "11705", "4 à 14", "1 à 3"],
+["S7B3", "Bois des Iles (Rue)", "CHARLES-QUINT", "11702", "11703", "2 à 22", "1 à 21"],
+["S7B3.1", "Gare de BERCHEM", "CHARLES-QUINT", "11702", "11703", "", ""],
+["S7B3.2", "Charles-Quint (Av)", "CHARLES-QUINT", "11702", "11703", "570 à 576", "511 à 515"],
+["S7B4", "Gand (Ch de)", "CHARLES-QUINT", "11702", "11703", "1178 à 1432", "1139 à 1379"],
+["S7B4", "Gand (Ch de)", "GRAND BIGARD", "11701", "11705", "1148 à 1178", "1127 à 1133"],
+["S7B4", "Gand (Ch de)", "METTEWIE", "22203", "22204", "426 à 1148", "451 à 1127"],
+["S7B4", "Gand (Ch de)", "KARREVELD", "7705", "22202", "406 à 426", "427 à 451"],
+["S7B5", "Schweitzer (Pl Docteur)", "GRAND BIGARD", "11701", "11705", "2 à 38", "3 à 13"],
+["S7B6", "Roi Albert (Av du)", "GRAND BIGARD", "11701", "11705", "8 à 288", "1 à 295"],
+["S7B7", "Hunderenveld", "GRAND BIGARD", "11701", "11705", "", ""],
+["S7B8", "Bruxelles (Rue)", "GRAND BIGARD", "11701", "11705", "2 à 34", "1 à 41"],
+["S7B9", "Dansaert (Av Robert)", "GRAND BIGARD", "11701", "11705", "2 à 70", "1 à 3"],
+["S7B9.1", "Terminus GRAND-BIGARD", "GRAND BIGARD", "11701", "11705", "", ""],
+["S7B9.2", "Eglise (Rue)", "GRAND BIGARD", "11701", "11705", "", ""],
+["S7B9.3", "Gezelle (Rue Guido)", "GRAND BIGARD", "11701", "11705", "", ""],
+["S7B9.4", "Karreveld (Av du)", "KARREVELD", "7705", "22202", "", ""],
+["S7B10", "Brigade Piron (Av)", "KARREVELD", "7705", "22202", "96 à 144", "113 à 161"],
+["S7B10", "Brigade Piron (Av)", "BAECK", "7703", "7704", "46 à 96", "1 à 35"],
+["S7B11", "Mennekens (Pl Jef)", "KARREVELD", "7705", "22202", "6 à 8", "7"],
+["S7B11", "Mennekens (Pl Jef)", "BAECK", "7703", "7704", "2 à 4", "1 à 3"],
+["S7B12", "Baeck (Av Joseph)", "BAECK", "7703", "7704", "2 à 70", ""],
+["S7B13", "Doyen (Rue Nicolas)", "BAECK", "7703", "7704", "10 à 42", "1 à 5"],
+["S7B13.1", "Terminus DOYEN", "BAECK", "7703", "7704", "", ""],
+["S7B13.2", "Bonne (Rue de) ", "BAECK", "7703", "7704", "", ""],
+["S7B14", "Enghien (Rue d')", "BAECK", "7703", "7704", "32 à 42", "51 à 55"],
+["S7B14", "Enghien (Rue d')", "DPT ENGHEIN", "7707", "", "10 à 26", "1 à 41"],
+["S7B15", "DPT ENGHIEN", "DPT ENGHEIN", "7707", "", "", ""],
+["S7B16", "Ninove (Ch de)", "BAECK", "7703", "7704", "184 à 216", "207 à 209"],
+["S7B16", "Ninove (Ch de)", "CHEE DE NINOVE", "7701", "7706", "2 à 184", "41 à 181"],
+["S7B16.1", "Ransfort (Rue)", "CHEE DE NINOVE", "7701", "7706", "", ""],
+["S7B17", "Duchesse de Brabant (Pl de la)", "CHEE DE NINOVE", "7701", "7706", "", ""],
+["S7C1", "Midi (Blv du)", "BLV DU MIDI", "2003", "14703", "2 à 48", "1 à 49"],
+["S7C1", "Midi (Blv du)", "STALINGRAD", "14701", "14712", "50 à 52", "51 à 53"],
+["S7C1.1", "Trémie POINTCARE", "STALINGRAD", "14701", "14712", "", ""],
+["S7C2", "Cureghem (Rue de )", "BLV DU MIDI", "2003", "14703", "2 à 10", "1 à 11"],
+["S7C2", "Abattoir (Bd de l')", "BLV DU MIDI", "2003", "14703", "26 à 44", "27 à 45"],
+["S7C2", "Abattoir (Bd de l')", "BLV BARTHELEMY", "1802", "1806", "2 à 26", "1 à 25"],
+["S7C2.1", "Anderlecht (Porte d')", "BLV DU MIDI", "2003", "14703", "", ""],
+["S7C2.2", "Foulons (Rue des )", "BLV DU MIDI", "2003", "14703", "", ""],
+["S7C2.3", "Senne (Rue de la)", "BLV DU MIDI", "2003", "14703", "", ""],
+["S7C3", "Smets (Sq auguste)", "BLV BARTHELEMY", "1802", "1806", "", ""],
+["S7C4", "Ninove (Porte de)", "BLV BARTHELEMY", "1802", "1806", "", ""],
+["S7C5", "Barthelemy (Bld )", "BLV BARTHELEMY", "1802", "1806", "2 à 56", "1 à 57"],
+["S7C6", "Flandre (Porte de )", "BLV BARTHELEMY", "1802", "1806", "", ""],
+["S7C7", "Nieuport (Bld de)", "BLV BARTHELEMY", "1802", "1806", "2 à 26", "1 à 25"],
+["S7C8", "Neuvième de Ligne (Bld)", "BLV BARTHELEMY", "1802", "1806", "2", "27"],
+["S7C9", "Houthulst (Rue de la Forêt d')", "BLV BARTHELEMY", "1802", "1806", "2 à 10", "1 à 35"],
+["S7C9.1", "Quai au bois de Construction", "BLV BARTHELEMY", "1802", "1806", "", ""],
+["S7C9.2", "Quai aux Foins (Rue du )", "BLV BARTHELEMY", "1802", "1806", "", ""],
+["S7C9.3", "Quai aux Pierre de Taille (Rue du )", "BLV BARTHELEMY", "1802", "1806", "", ""],
+["S7C9.4", "Quai de la Chaux (Rue du )", "BLV BARTHELEMY", "1802", "1806", "", ""],
+["S7C10", "Quai du Commerce (Rue du)", "BLV BARTHELEMY", "1802", "1806", "2 à 50", "1 à 35"],
+["S7C10", "Quai du Commerce (Rue du)", "PENICHES", "1801", "1804", "50", "35"],
+["S7C11", "Yser (Pl de l')", "PENICHES", "1801", "1804", "2 à 4", "3 à 5"],
+["S7C12", "Sainctelette (square)", "PENICHES", "1801", "1804", "4 à 20", "3 à 21"],
+["S7C13", "Sainctelette (Pl)", "PENICHES", "1801", "1804", "", ""],
+["S7C14", "Léopold 2 (Bld)", "PENICHES", "1801", "1804", "12 à 140", "17 à 131"],
+["S7C14.1", "Dixmude (Rue de)", "PENICHES", "1801", "1804", "", ""],
+["S7C15", "Jubilé (Bld)", "PENICHES", "1801", "1804", "2 à 40", "1 à 41"],
+["S7C15", "Jubilé (Bld)", "ST REMY", "403", "1808", "40 à 110", "43 à 103"],
+["S7C16", "Belgica (Bld)", "ST REMY", "403", "1808", "2 à 62", "1 à 59"],
+["S7C17", "Werrie (Pl Philippe)", "ST REMY", "403", "1808", "2 à 24", "1 à 25"],
+["S7C17.1", "Hollevoet (Av Henri)", "ST REMY", "403", "1808", "", ""],
+["S7C17.2", "Intendant (Rue de l')", "ST REMY", "403", "1808", "", ""],
+["S7C17.3", "Ourthe (Rue de l')", "ST REMY", "403", "1808", "", ""],
+["S7C17.4", "Vanderstichelen (Rue)", "ST REMY", "403", "1808", "", ""],
+["S7C18", "Woeste (Av Charles)", "WOESTE", "401", "1003", "36 à 312", "47 à 329"],
+["S7C18.1", "Mirepoix (Av de Levis)", "WOESTE", "401", "1003", "", ""],
+["S7C18.2", "Notre-Dame de Lourdes (Av)", "WOESTE", "401", "1003", "", ""],
+["S7C18.3", "Vandervleet (Rue Jules)", "WOESTE", "401", "1003", "", ""],
+["S7C18.4", "Warland (Av Odon)", "WOESTE", "401", "1003", "", ""]
+];
+
+const basePath = "S:\\\\Electricite\\\\_Public\\\\Documents CCSE\\\\Perso\\\\DIE_GG\\\\réseaux 700V Pdf\\\\";
+rawData.forEach(row => {
+    const networkName = row[2];
+    if (networkName) {
+        row[7] = basePath + networkName + ".pdf";
+    }
+});
+
+function formatLocalLink(path) {
+    if (!path) return "";
+    let cleanPath = path.trim().replace(/\\/g, '/');
+    if (cleanPath.charAt(1) === ':') {
+        return "file:///" + cleanPath;
+    }
+    return cleanPath;
+}
+
+// L'EXPERT IA : Fonction clé pour détruire les accents (Normalisation Unicode)
+function removeAccents(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function init() {
+    searchStreets();
+}
+
+function searchStreets() {
+    // Si l'utilisateur tape une rue, on efface le champ réseau
+    document.getElementById("networkInput").value = "";
+    document.getElementById("clearNetworkSearch").style.display = "none";
+
+    // 1. On capture la recherche de l'utilisateur
+    const rawInput = document.getElementById("streetInput").value.trim();
+    
+    // 2. On transforme l'entrée: majuscules + destruction des accents
+    const input = removeAccents(rawInput).toUpperCase();
+    
+    const grid = document.getElementById("grid");
+    const clearBtn = document.getElementById("clearSearch");
+    
+    clearBtn.style.display = rawInput.length > 0 ? "block" : "none";
+    
+    document.getElementById("view2").style.display = "none";
+    document.getElementById("view1").style.display = "block";
+
+    if(input.length === 0) { grid.innerHTML = ""; return; }
+
+    grid.innerHTML = "";
+    
+    let groups = {};
+    let currentStreet = "";
+    let currentCode = "";
+    let currentNetwork = "";
+
+    rawData.forEach(row => {
+        let code = row[0];
+        let street = row[1];
+        let network = row[2];
+
+        if (street !== "") currentStreet = street;
+        if (code !== "") currentCode = code;
+        if (network !== "") {
+            currentNetwork = network;
+        } else {
+            network = currentNetwork;
+        }
+
+        let thisStreet = currentStreet;
+        let thisCode = currentCode;
+        let thisNetwork = network;
+
+        // 3. On nettoie aussi les données de la base avant de comparer
+        let searchStreet = removeAccents(thisStreet).toUpperCase();
+        let searchCode = removeAccents(thisCode).toUpperCase();
+
+        // 4. On compare des éléments parfaitement propres
+        if (searchStreet.includes(input) || searchCode.includes(input)) {
+            
+            let key = thisStreet + "_" + thisCode;
+            if (!groups[key]) {
+                groups[key] = {
+                    street: thisStreet,
+                    code: thisCode,
+                    items: []
+                };
+            }
+            
+            groups[key].items.push({
+                network: thisNetwork,
+                feeder1: row[3],
+                feeder2: row[4],
+                rangePair: row[5],
+                rangeImpair: row[6],
+                link: row[7] || (basePath + thisNetwork + ".pdf")
+            });
+        }
+    });
+
+    const sortedGroups = Object.values(groups).sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true, sensitivity: 'base' }));
+
+    if (sortedGroups.length === 0) {
+        grid.innerHTML = "<div style='grid-column:1/-1; text-align:center; color:#999; margin-top:30px;'>Aucun résultat trouvé.</div>";
+        return;
+    }
+
+    sortedGroups.forEach(group => {
+        let items = group.items;
+        let code = group.code;
+        let uniqueNetworks = [...new Set(items.map(i => i.network))].filter(n => n);
+        let networksCount = uniqueNetworks.length;
+
+        let card = document.createElement("div");
+        card.className = "choice-card";
+        card.innerHTML = `
+            <div class="choice-name">${group.street}</div>
+            <div class="choice-sub">
+                <span>Code: ${code}</span>
+                <span>${networksCount} Réseau(x)</span>
+            </div>
+        `;
+        card.onclick = () => showDetails(group.street, code, items);
+        grid.appendChild(card);
+    });
+}
+
+// Recherche isolée des réseaux avec extraction des feeders
+function searchNetworks() {
+    // Si l'utilisateur cherche un réseau, on nettoie le champ de la rue
+    document.getElementById("streetInput").value = "";
+    document.getElementById("clearSearch").style.display = "none";
+
+    const rawInput = document.getElementById("networkInput").value.trim();
+    const input = removeAccents(rawInput).toUpperCase();
+    
+    const grid = document.getElementById("grid");
+    const clearBtn = document.getElementById("clearNetworkSearch");
+    
+    clearBtn.style.display = rawInput.length > 0 ? "block" : "none";
+    
+    document.getElementById("view2").style.display = "none";
+    document.getElementById("view1").style.display = "block";
+
+    if(input.length === 0) { grid.innerHTML = ""; return; }
+
+    grid.innerHTML = "";
+    
+    // Map pour stocker : Nom du réseau => { link, feeder1, feeder2 }
+    let uniqueNetworks = new Map();
+    let currentNetworkGlobal = "";
+
+    rawData.forEach(row => {
+        let networkName = row[2];
+        let f1 = row[3] || "";
+        let f2 = row[4] || "";
+        
+        // Gérer l'héritage des colonnes vides
+        if (networkName !== "") {
+            currentNetworkGlobal = networkName;
+        } else {
+            networkName = currentNetworkGlobal;
+        }
+
+        let link = row[7] || (basePath + networkName + ".pdf");
+
+        if (networkName) {
+            let searchNet = removeAccents(networkName).toUpperCase();
+            if (searchNet.includes(input)) {
+                if (!uniqueNetworks.has(networkName)) {
+                    uniqueNetworks.set(networkName, { link: link, feeder1: f1, feeder2: f2 });
+                } else {
+                    // Si on a déjà ce réseau mais que les feeders étaient vides, on les met à jour
+                    let existing = uniqueNetworks.get(networkName);
+                    if (!existing.feeder1 && f1) existing.feeder1 = f1;
+                    if (!existing.feeder2 && f2) existing.feeder2 = f2;
+                }
+            }
+        }
+    });
+
+    if (uniqueNetworks.size === 0) {
+        grid.innerHTML = "<div style='grid-column:1/-1; text-align:center; color:#999; margin-top:30px;'>Aucun réseau trouvé.</div>";
+        return;
+    }
+
+    uniqueNetworks.forEach((data, networkName) => {
+        // Préparation du texte des feeders
+        let displayFeeders = data.feeder1;
+        if (data.feeder2) displayFeeders += " / " + data.feeder2;
+        if (!displayFeeders) displayFeeders = "N/A";
+
+        let card = document.createElement("div");
+        card.className = "choice-card";
+        card.style.borderLeftColor = "#2e7d32"; // Bordure verte pour différencier des rues
+        card.innerHTML = `
+            <div class="choice-name">${networkName}</div>
+            <div class="choice-sub" style="margin-top: 8px;">
+                <span style="font-weight: bold; color: #455a64;">⚡ Feeders : ${displayFeeders}</span>
+            </div>
+        `;
+        
+        if (data.link && data.link.trim() !== "") {
+            let href = formatLocalLink(data.link);
+            card.onclick = () => window.open(href, '_blank');
+            card.innerHTML += `<div style="margin-top: 10px; font-size: 0.85rem; color: #2e7d32; font-weight: bold;">📄 Consulter la fiche PDF</div>`;
+        } else {
+            card.innerHTML += `<div style="margin-top: 10px; font-size: 0.85rem; color: #d32f2f;">PDF Introuvable</div>`;
+        }
+        
+        grid.appendChild(card);
+    });
+}
+
+function clearSearch() {
+    document.getElementById("streetInput").value = "";
+    searchStreets();
+    document.getElementById("streetInput").focus();
+}
+
+function clearNetworkSearch() {
+    document.getElementById("networkInput").value = "";
+    searchNetworks();
+    document.getElementById("networkInput").focus();
+}
+
+let currentItems = [];
+
+function showDetails(streetName, code, items) {
+    document.getElementById("view1").style.display = "none";
+    document.getElementById("view2").style.display = "block";
+    
+    document.getElementById("dStreet").textContent = streetName;
+    document.getElementById("dCode").textContent = code;
+    
+    const lieuDiv = document.getElementById("dLieu");
+    if (lieuDiv) {
+        lieuDiv.style.display = "none";
+        lieuDiv.textContent = "";
+    }
+
+    currentItems = items;
+    document.getElementById("numInput").value = "";
+    document.getElementById("noResult").style.display = "none";
+    renderNetworks(null); 
+}
+
+function clearNum() {
+    document.getElementById("numInput").value = "";
+    filterNetworks();
+    document.getElementById("numInput").focus();
+}
+
+function filterNetworks() {
+    let val = document.getElementById("numInput").value.trim();
+    let num = val ? parseInt(val) : null;
+    renderNetworks(num);
+}
+
+function renderNetworks(searchNum) {
+    const container = document.getElementById("netList");
+    const alertBox = document.getElementById("noResult");
+    container.innerHTML = "";
+    
+    let matchFound = false;
+
+    currentItems.forEach(item => {
+        let isMatch = true;
+
+        if (searchNum !== null) {
+            let isEven = (searchNum % 2 === 0);
+            let targetRange = isEven ? item.rangePair : item.rangeImpair;
+
+            if (!targetRange || targetRange.trim() === "") {
+                isMatch = false;
+            } else {
+                isMatch = checkNumberInRange(searchNum, targetRange);
+            }
+        }
+
+        if (isMatch) matchFound = true;
+
+        let shouldDisplay = (searchNum === null) || isMatch;
+
+        if (shouldDisplay) {
+            let feeders = item.feeder1 || "";
+            if (item.feeder2) feeders += " / " + item.feeder2;
+            if (!feeders) feeders = "N/A";
+
+            let rangeHtml = "";
+            if(item.rangePair || item.rangeImpair) {
+                rangeHtml += `<div class="range-info">`;
+                if(item.rangePair) rangeHtml += `<div class="range-row"><span>Pair:</span> <span>${item.rangePair}</span></div>`;
+                if(item.rangeImpair) rangeHtml += `<div class="range-row"><span>Impair:</span> <span>${item.rangeImpair}</span></div>`;
+                rangeHtml += `</div>`;
+            }
+
+            let linkHtml = "";
+            if (item.link && item.link.trim() !== "") {
+                let href = formatLocalLink(item.link);
+                linkHtml = `
+                    <div style="margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 10px;">
+                        <a href="${href}" target="_blank" class="pdf-link">
+                            📄 Ouvrir le plan PDF
+                        </a>
+                    </div>
+                `;
+            }
+
+            let card = document.createElement("div");
+            card.className = `network-card match`;
+            card.innerHTML = `
+                <div class="net-header">
+                    <div class="net-name">${item.network}</div>
+                    <span class="status-badge">COUVERTURE OK</span>
+                </div>
+                <div class="feeder-line">
+                    <span class="feeder-label">FEEDERS :</span>
+                    <span class="feeder-val">⚡ ${feeders}</span>
+                </div>
+                ${rangeHtml}
+                ${linkHtml}
+            `;
+            
+            container.appendChild(card);
+        }
+    });
+
+    if (searchNum !== null && !matchFound) {
+        alertBox.style.display = "block";
+        document.getElementById("alertNum").textContent = searchNum;
+    } else {
+        alertBox.style.display = "none";
+    }
+}
+
+function checkNumberInRange(num, rangeStr) {
+    if (!rangeStr) return false;
+    
+    let clean = rangeStr.toLowerCase()
+        .replace(/et/g, ',')
+        .replace(/\s+/g, '')
+        .replace(/à/g, '-'); 
+
+    let segments = clean.split(',');
+
+    for (let segment of segments) {
+        if (!segment) continue;
+
+        if (segment.includes('-')) {
+            let parts = segment.split('-');
+            if (parts.length === 2) {
+                let min = parseInt(parts[0]);
+                let max = parseInt(parts[1]);
+                if (!isNaN(min) && !isNaN(max)) {
+                    if (num >= min && num <= max) return true;
+                }
+            }
+        } 
+        else {
+            let val = parseInt(segment);
+            if (!isNaN(val) && val === num) return true;
+        }
+    }
+
+    return false;
+}
+
+function goBack() {
+    document.getElementById("view2").style.display = "none";
+    document.getElementById("view1").style.display = "block";
+    document.getElementById("streetInput").focus();
+}
+
+init();
+
+</script>
+</body>
+</html>
